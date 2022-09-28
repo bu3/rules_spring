@@ -34,9 +34,18 @@ def _depaggregator_rule_impl(ctx):
     # magical incantation for getting upstream transitive closure of java deps
     merged = java_common.merge([dep[java_common.provider] for dep in ctx.attr.deps])
 
+    out_file = ctx.actions.declare_file('test_echo.txt')
+    ctx.actions.run_shell(
+        command = "bazel info",
+        outputs = [out_file],
+    )
+    outs = []
+    outs.append(out_file)
+    print( [DefaultInfo(files = depset(outs))])
+
+
     jars = []
     excludes = {}
-
     for exclusion_info in ctx.attr.deps_exclude:
         for compile_jar in exclusion_info[JavaInfo].full_compile_jars.to_list():
             # print("Spring Boot Excluding: "+compile_jar.owner.name+" as "+compile_jar.path)
